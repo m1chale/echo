@@ -2,6 +2,7 @@
  * @module website/app
  */
 
+let audioPlayer = null;
 let mediaRecorder = null;
 let audioChunks = [];
 
@@ -14,32 +15,42 @@ document.addEventListener("DOMContentLoaded", documentLoaded);
 function documentLoaded(event) {
   const toggleRecording = document.getElementById("toggleRecording");
   toggleRecording.addEventListener("click", toggleRecordingOnClick);
+
+  audioPlayer = document.getElementById("audioPlayer");
 }
 
 /**
  * start and stop recording
  * @param {Event} event
  */
-function toggleRecordingOnClick(event) {
+async function toggleRecordingOnClick(event) {
   const url = "/api/recording";
 
   // @TODO: use nicer way to identify recording state (maybe dataset)
   if (event.target.value == "Start recording") {
+    console.log("start");
     startRecording();
+    event.target.value = "Stop recording";
   } else {
+    event.target.value = "Start recording";
     const email = document.getElementById("email");
     const recordingData = {};
 
     recordingData.email = email.value;
     recordingData.recording = stopRecording();
 
-    uploadRecordingData(url, recordingData);
+    const correctedResponse = await uploadRecordingData(url, recordingData);
+
+    showPlayback(correctedResponse.recording);
 
     email.value = "";
     email.focus();
   }
 }
 
+/**
+ * record using MediaRecorder
+ */
 function startRecording() {
   navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
     mediaRecorder = new MediaRecorder(stream);
@@ -52,6 +63,10 @@ function startRecording() {
   });
 }
 
+/**
+ * stop MediaRecorder
+ * @returns {Blob} audioBlob
+ */
 function stopRecording() {
   mediaRecorder.stop();
   mediaRecorder = null;
@@ -65,7 +80,7 @@ function stopRecording() {
  * Uploads the recording data to the server
  * @param {string} url
  * @param {object} recordingData
- * @returns {boolean} true if upload finished without error
+ * @returns {JSON} response from api
  */
 async function uploadRecordingData(url, recordingData) {
   const apiRes = await fetch(url, {
@@ -84,4 +99,13 @@ async function uploadRecordingData(url, recordingData) {
   }
 
   return await apiRes.json();
+}
+
+/**
+ * show playback
+ * @param {Blob} recording
+ */
+function showPlayback(recording) {
+  audioPlayer.src = window.URL.createObjectURL(recording);
+  //audioPlayer.play();
 }
