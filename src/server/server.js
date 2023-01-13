@@ -5,11 +5,11 @@
  * @requires cors
  */
 
+import { doGrammarCorrection } from "./grammar-corrector";
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
-const recordings = [];
 
 const port = 8080;
 
@@ -25,3 +25,26 @@ app.listen(port, listening);
 function listening() {
   console.log(`Server is up and listening on port: ${port} ...`);
 }
+
+async function doGrammarCorrectionAsync(request, response) {
+  const recordingCorrected = await doGrammarCorrection(response.body.recording);
+
+  const recordingData = {
+    email: request.body.email,
+    recording: recordingCorrected,
+    timeStamp: Date.now(),
+  };
+
+  response.send(recordingData);
+}
+
+/**
+ * Route accepting single recording.
+ * @name post/recording
+ * @function
+ * @param {string} path - Express path
+ * @param {callback} middleware - Express middleware.
+ */
+app.post("/api/recording", (request, response) =>
+  doGrammarCorrectionAsync(request, response)
+);
