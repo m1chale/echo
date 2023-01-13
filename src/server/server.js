@@ -5,7 +5,7 @@
  * @requires cors
  */
 
-import { doGrammarCorrection } from "./grammar-corrector";
+const doGrammarCorrection = require("./grammar-corrector");
 
 const express = require("express");
 const bodyParser = require("body-parser");
