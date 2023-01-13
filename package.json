@@ -1,4 +1,12 @@
 {
+  "name": "echo",
+    "version": "1.0.0",
+    "main": "server.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node src/server/server.js",
+        "mon": "nodemon src/server/server.js",
+        "docu": "jsdoc -c config/jsdoc.conf.json -r ./"},
   "dependencies": {
     "body-parser": "^1.20.1",
     "cors": "^2.8.5",
